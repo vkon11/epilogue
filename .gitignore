@@ -2,3 +2,5 @@
 Thumbs.db
 .env
 .firecrawl/
+.venv/
+__pycache__/
