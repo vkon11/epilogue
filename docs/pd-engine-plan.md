@@ -45,7 +45,7 @@ epilogue/
 
 - **Database:** Supabase Postgres. Row-level security on every table; only VK's account can read or
   write. The pipeline uses the secret key locally; the browser only ever sees the publishable key.
-- **Auth:** Supabase magic-link login, restricted to one allowlisted email.
+- **Auth:** Supabase email + password login, restricted to one allowlisted email (no emails sent).
 - **AI work:** done by Claude Code in headless mode (`claude -p`) on VK's Pro plan, called from the
   pipeline in batches. No Anthropic API key, no per-call cost. The dashboard never calls an AI itself.
 
