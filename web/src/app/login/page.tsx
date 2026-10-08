@@ -15,7 +15,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
         />
         <button className="w-full rounded bg-foreground px-3 py-2 text-background">Send magic link</button>
         {sent && <p className="text-sm">Check your email for the link.</p>}
-        {error && <p className="text-sm text-red-600">That didn&apos;t work. Try again.</p>}
+        {error && <p className="text-sm text-red-600">That didn&apos;t work: {error}</p>}
       </form>
     </main>
   );

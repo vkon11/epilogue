@@ -88,7 +88,8 @@ epilogue/
 | M1 | Simplify ingest | ~1,200 rows; second run adds 0 duplicates |
 | M2 | Postings view + login, deployed to Vercel | VK can log in and see postings; an incognito window sees nothing |
 | M3 | Tagging, Greenhouse ingest, watchlist | Every posting has a track and firm type; watchlist programs show status |
-| M4 | Claude Code enrichment | Hand-check 20 summaries and fit scores against the profile |
-| M5 | Faculty ingest + contacts view and form | Faculty list populated; hand-added contact appears |
+| M4 | UI redesign inspired by speedrun.scopehealth.com, built in a git worktree on its own branch | Old and new UI run side by side; merge only when VK approves |
+| M5 | Claude Code enrichment | Hand-check 20 summaries and fit scores against the profile |
+| M6 | Faculty ingest + contacts view and form | Faculty list populated; hand-added contact appears |
 
 Each milestone ends with a short walkthrough of what was built and why.

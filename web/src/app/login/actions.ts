@@ -12,5 +12,5 @@ export async function sendMagicLink(formData: FormData) {
     // No sign-ups: only accounts created in the Supabase dashboard can log in.
     options: { shouldCreateUser: false, emailRedirectTo: `${origin}/auth/confirm` },
   });
-  redirect(error ? "/login?error=1" : "/login?sent=1");
+  redirect(error ? `/login?error=${encodeURIComponent(error.message)}` : "/login?sent=1");
 }

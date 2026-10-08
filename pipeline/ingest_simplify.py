@@ -3,7 +3,8 @@ from datetime import datetime, timezone
 
 import requests
 
-from db import client
+from db import client, retry
+from regions import regions
 
 URL = "https://raw.githubusercontent.com/SimplifyJobs/Summer2027-Internships/dev/.github/scripts/listings.json"
 TRACKS = {
@@ -12,11 +13,6 @@ TRACKS = {
     "Software Engineering": "swe",
     "Hardware": "ce",
     "Hardware Engineering": "ce",
-}
-MIDWEST = {"IL", "IN", "IA", "KS", "MI", "MN", "MO", "NE", "ND", "OH", "SD", "WI"}
-MIDWEST_NAMES = {
-    "illinois", "indiana", "iowa", "kansas", "michigan", "minnesota",
-    "missouri", "nebraska", "north dakota", "ohio", "south dakota", "wisconsin",
 }
 CHUNK = 500
 
@@ -29,15 +25,6 @@ def keep(x):
         and x.get("category") in TRACKS
         and (not x.get("degrees") or "Bachelor's" in x["degrees"])
     )
-
-
-def region(locations):
-    tails = [loc.split(",")[-1].strip() for loc in locations]
-    if any(t in MIDWEST or t.lower() in MIDWEST_NAMES for t in tails):
-        return "midwest"
-    if any("remote" in loc.lower() for loc in locations):
-        return "remote"
-    return "other"
 
 
 def existing(db):
@@ -55,7 +42,7 @@ def existing(db):
 
 
 def run():
-    listings = [x for x in requests.get(URL, timeout=120).json() if keep(x)]
+    listings = [x for x in retry(lambda: requests.get(URL, timeout=120).json()) if keep(x)]
     now = datetime.now(timezone.utc)
     rows = [
         {
@@ -67,7 +54,7 @@ def run():
             "category": x["category"],
             "track": TRACKS[x["category"]],
             "locations": x.get("locations") or [],
-            "region": region(x.get("locations") or []),
+            "regions": regions(x.get("locations") or []),
             "status": "open",
             "date_posted": datetime.fromtimestamp(x["date_posted"], timezone.utc).date().isoformat()
             if x.get("date_posted") else None,
@@ -75,6 +62,7 @@ def run():
         }
         for x in listings
     ]
+    rows = [r for r in rows if r["regions"]]  # US and remote only
 
     db = client()
     before = existing(db)
