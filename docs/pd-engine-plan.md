@@ -90,6 +90,6 @@ epilogue/
 | M3 | Tagging, Greenhouse ingest, watchlist | Every posting has a track and firm type; watchlist programs show status |
 | M4 | UI redesign inspired by speedrun.scopehealth.com, built in a git worktree on its own branch | Old and new UI run side by side; merge only when VK approves |
 | M5 | Claude Code enrichment | Hand-check 20 summaries and fit scores against the profile |
-| M6 | Faculty ingest + contacts view and form | Faculty list populated; hand-added contact appears |
+| ~~M6~~ | ~~Faculty ingest + contacts view and form~~ — dropped 2026-10-09; VK handles networking manually | — |
 
 Each milestone ends with a short walkthrough of what was built and why.

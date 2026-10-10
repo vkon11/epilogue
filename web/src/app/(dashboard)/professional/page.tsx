@@ -4,9 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 const TRACKS: Record<string, string> = { quant: "Quant", swe: "SWE", ce: "Computer Eng." };
 // Keep in sync with FOCUS in pipeline/regions.py.
 const FOCUS = ["remote", "midwest", "nyc", "bay_area", "texas"];
-const ELIGIBILITY: Record<string, string> = { fits: "Fits", unclear: "Unclear", no: "Not eligible" };
 
-type Filters = { track?: string; where?: string; elig?: string; closed?: string };
+type Filters = { track?: string; where?: string; closed?: string };
 
 function href(filters: Filters) {
   const query = new URLSearchParams(
@@ -34,20 +33,17 @@ export default async function ProfessionalPage({ searchParams }: PageProps<"/pro
   const filters: Filters = {
     track: one(params.track),
     where: one(params.where),
-    elig: one(params.elig),
     closed: one(params.closed),
   };
 
   const supabase = await createClient();
   let query = supabase
     .from("postings")
-    .select("id, company, title, url, track, locations, status, date_posted, eligibility, eligibility_reason")
+    .select("id, company, title, url, track, locations, status, date_posted, summary")
     .order("date_posted", { ascending: false, nullsFirst: false })
     .limit(1000);
   if (filters.track && filters.track in TRACKS) query = query.eq("track", filters.track);
   if (filters.where !== "us") query = query.overlaps("regions", FOCUS);
-  if (filters.elig === "fits") query = query.eq("eligibility", "fits");
-  else if (filters.elig !== "all") query = query.or("eligibility.is.null,eligibility.neq.no");
   if (!filters.closed) query = query.neq("status", "closed");
   const { data: postings, error } = await query;
 
@@ -68,9 +64,6 @@ export default async function ProfessionalPage({ searchParams }: PageProps<"/pro
         <Chip active={filters.where === "us"} to={href({ ...filters, where: "us" })}>All US</Chip>
       </div>
       <div className="flex flex-wrap gap-2">
-        <Chip active={!filters.elig} to={href({ ...filters, elig: undefined })}>Not ruled out</Chip>
-        <Chip active={filters.elig === "fits"} to={href({ ...filters, elig: "fits" })}>Fits a rising sophomore</Chip>
-        <Chip active={filters.elig === "all"} to={href({ ...filters, elig: "all" })}>Any eligibility</Chip>
         <Chip active={Boolean(filters.closed)} to={href({ ...filters, closed: filters.closed ? undefined : "1" })}>
           Show closed
         </Chip>
@@ -88,7 +81,7 @@ export default async function ProfessionalPage({ searchParams }: PageProps<"/pro
                   <th className="py-2 pr-4">Company</th>
                   <th className="py-2 pr-4">Role</th>
                   <th className="py-2 pr-4">Track</th>
-                  <th className="py-2 pr-4">Eligibility</th>
+                  <th className="py-2 pr-4">What you&apos;d do</th>
                   <th className="py-2 pr-4">Location</th>
                   <th className="py-2">Posted</th>
                 </tr>
@@ -102,10 +95,7 @@ export default async function ProfessionalPage({ searchParams }: PageProps<"/pro
                       {p.status === "closed" && <span className="ml-2 text-xs opacity-60">closed</span>}
                     </td>
                     <td className="py-2 pr-4">{TRACKS[p.track] ?? p.track}</td>
-                    <td className="max-w-xs py-2 pr-4">
-                      {p.eligibility ? ELIGIBILITY[p.eligibility] : "Not screened"}
-                      {p.eligibility_reason && <p className="mt-1 text-xs opacity-60">{p.eligibility_reason}</p>}
-                    </td>
+                    <td className="max-w-md py-2 pr-4">{p.summary ?? <span className="opacity-40">—</span>}</td>
                     <td className="py-2 pr-4">{p.locations.join(" · ")}</td>
                     <td className="whitespace-nowrap py-2">{p.date_posted}</td>
                   </tr>
